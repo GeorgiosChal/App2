@@ -1,0 +1,1 @@
+Model is where we enforce rules or bussines logic on our data
