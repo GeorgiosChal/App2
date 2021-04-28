@@ -4,7 +4,7 @@ const dotenv=require("dotenv")
 dotenv.config()
 
 mongodb.connect(process.env.CONNECTIONSTRING,{useNewUrlParser:true,useUnifiedTopology:true},function(err,client){
-    module.exports=client.db()
+    module.exports=client
    
     const app=require('./app')
     //port init
@@ -13,5 +13,5 @@ mongodb.connect(process.env.CONNECTIONSTRING,{useNewUrlParser:true,useUnifiedTop
         port=3000
     }
 
-    app.listen(port) 
+    app.listen(port,()=>console.log(`listend on port ${port}`)) 
 })
