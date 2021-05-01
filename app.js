@@ -1,18 +1,23 @@
 const express =require('express')
 const session=require('express-session')
-const MongoStore=require('connect-mongo')(session)
+//use sessions
+const MongoStore=require('connect-mongo')
+//flash messages
+const flash=require('connect-flash')
 const app=express()
 
 //sesion init
-let sessionOptions=session({
+const sessionOptions=session({
     secret: "JavaScript is not sooo cool",
-    store:  new MongoStore({client: require('./db')}),
+    store: MongoStore.create({client: require('./db')}),
     resave:false,
     saveUninitialized:false,
     //1arg=milisec to sec. 2=sec to min 3= min tou hour, hour to one day
     cookie:{maxAge:1000*60*60*24,httpOnly:true }
 })
 app.use(sessionOptions)
+
+app.use(flash())
 
 //sets a router. value of router should be whatever returned
 //from router.js file with line:module.exports=router
