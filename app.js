@@ -19,6 +19,12 @@ app.use(sessionOptions)
 
 app.use(flash())
 
+//we have 'user' property from within any ejs template
+app.use(function(req,res,next){
+    res.locals.user=req.session.user
+    next()
+})
+
 //sets a router. value of router should be whatever returned
 //from router.js file with line:module.exports=router
 const router=require('./router')
