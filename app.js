@@ -4,6 +4,10 @@ const session=require('express-session')
 const MongoStore=require('connect-mongo')
 //flash messages
 const flash=require('connect-flash')
+//markdown
+const markdown=require('marked')
+//sanitizehtml
+const sanitizeHTML=require('sanitize-html')
 const app=express()
 
 //sesion init
@@ -21,9 +25,22 @@ app.use(flash())
 
 //we have 'user' property from within any ejs template
 app.use(function(req,res,next){
+    //make our markdown function available from within ejs template
+    //also sanitize it to avoid showing any links (database will still include links)
+    res.locals.filterUserHTML=function(content){
+        return sanitizeHTML(markdown(content),{allowedTags:['p','br','ul','ol','li','strong','i','bold','h1','h2','h3','h4','h5','h6'],allowedAttributes:[]})
+    }
+    //make all errors and success flash messages available from all templates
+    res.locals.errors=req.flash("errors")
+    res.locals.success=req.flash("success")
+    //make current user id available on the req object
+    if(req.session.user){req.visitorId=req.session.user._id}
+    else{req.visitorId=0}
+    //we have 'user' property from within any ejs template
     res.locals.user=req.session.user
     next()
 })
+
 
 //sets a router. value of router should be whatever returned
 //from router.js file with line:module.exports=router

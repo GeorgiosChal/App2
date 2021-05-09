@@ -1,5 +1,6 @@
 const session = require("express-session")
 const User=require("../models/User")
+const Post=require("../models/Post")
 
 exports.login=function(req,res){
     let user=new User(req.body)
@@ -56,8 +57,7 @@ exports.home=function(req,res){
         //in case of wrong login
         //As soon as the redirect happens its gonna access the coockie
         //with the error and is its going to automatically delete it 
-        res.render('home-guest',{errors: req.flash('errors'), 
-                                regErrors:req.flash('regErrors')})
+        res.render('home-guest',{regErrors:req.flash('regErrors')})
         
     }
 }
@@ -71,4 +71,27 @@ exports.mustBeLogin=function(req,res,next){
             res.redirect('/')
         })
     }
+}
+
+exports.ifUserExists=function(req,res,next){
+    User.findByUsername(req.params.username).then(function(userDocument){
+        req.profileUser=userDocument
+        next()
+    })
+    .catch(function(){
+        res.render("404")
+    })
+}
+
+exports.profilePostsScreen=function(req,res){
+    // ask our post model for post by a certain author id
+    Post.findByAuthorId(req.profileUser._id).then(function(posts){
+        res.render('profile',{
+            posts:posts,
+            profileUsername:req.profileUser.username,
+            profileAvatar:req.profileUser.avatar
+        })
+    }).catch(function(){
+        res.render("404")
+    })
 }

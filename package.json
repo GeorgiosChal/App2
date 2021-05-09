@@ -18,9 +18,11 @@
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "express-session": "^1.17.1",
+    "marked": "^2.0.3",
     "md5": "^2.3.0",
     "mongodb": "^3.6.6",
     "nodemon": "^2.0.7",
+    "sanitize-html": "^2.3.3",
     "validator": "^13.6.0"
   }
 }

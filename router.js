@@ -15,6 +15,13 @@ router.post('/logout',userController.logout)
 router.get('/create-post',userController.mustBeLogin,postController.viewCreateScreen)
 router.post('/create-post',userController.mustBeLogin,postController.create)
 router.get('/post/:id',postController.viewSingle)
+router.get('/post/:id/edit',userController.mustBeLogin,postController.viewEditScreen)
+router.post('/post/:id/edit',userController.mustBeLogin,postController.edit)
+router.post('/post/:id/delete',userController.mustBeLogin,postController.delete)
+
+
+//profile related routes
+router.get('/profile/:username',userController.ifUserExists,userController.profilePostsScreen)
 
 
 //router will return on where is been required. in this case app.js
