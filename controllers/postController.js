@@ -26,7 +26,7 @@ exports.viewSingle=async function(req,res){
 
 exports.viewEditScreen=async function(req,res){
     try{
-        let post=await Post.findSingleById(req.params.id)
+        let post=await Post.findSingleById(req.params.id,req.visitorId)
         if(post.authorId==req.visitorId){
             res.render("edit-post",{post: post})
         }else{
@@ -78,4 +78,12 @@ exports.delete=function(req,res){
         req.session.save(()=>res.redirect("/"))
     })
 
+}
+
+exports.search=function(req,res){
+    Post.search(req.body.searchTerm).then((posts)=>{
+        res.json(posts)
+    }).catch(()=>{
+        res.json([])
+    })
 }

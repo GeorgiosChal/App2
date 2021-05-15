@@ -79,8 +79,15 @@ Post.prototype.actuallyUpdate=function(){
     })
 }
 
-Post.reusablePostQuery=function(uniqueOperations,visitorId){
+Post.reusablePostQuery=function(uniqueOperations,visitorId,isSearch){
     return new Promise(async function(resolve,reject){
+        //if we are searching we need to use SORT
+        //after projection instead after match
+        afterUniqueOperations=[]
+        if(isSearch){
+            afterUniqueOperations[0]=uniqueOperations[1]
+            uniqueOperations=uniqueOperations.slice(0,1)
+        }
         let aggOperations=uniqueOperations.concat([
             {$lookup: {from: "users",localField:"author",foreignField: "_id",as: "authorDocument"}},
             {$project: {
@@ -90,12 +97,14 @@ Post.reusablePostQuery=function(uniqueOperations,visitorId){
                 authorId:"$author",
                 author: {$arrayElemAt: ["$authorDocument",0]}
             }}
-        ])
+        ],afterUniqueOperations)
         let posts=await postCollection.aggregate(aggOperations).toArray()
 
         //clean up author property in each post object. (exclude not wanted fields)
         posts=posts.map(function(post){
             post.isVisitorOwner=post.authorId.equals(visitorId)
+            //remove authroId from leaking
+            //post.authorId=undefined
             post.author={
                 username:post.author.username,
                 avatar: new User(post.author,true).avatar
@@ -105,6 +114,21 @@ Post.reusablePostQuery=function(uniqueOperations,visitorId){
         resolve(posts)
     })
 }
+/* the result
+[
+  {
+    _id: 
+    title: 
+    body: 
+    authorId:
+    author: {
+      username: 
+      avatar: 
+    },
+    isVisitorOwner: bool
+  }
+]
+*/
 
 
 Post.findSingleById=function(id,visitorId){
@@ -148,6 +172,25 @@ Post.delete=function(postIdToDelete,currentUserId){
         } catch {
             reject()
         }
+    })
+}
+
+Post.search=function(searchTerm){
+    return new Promise(async (resolve,reject)=>{
+        try {
+            if (typeof(searchTerm)=="string"){
+                let posts=await Post.reusablePostQuery([
+                    {$match: {$text: {$search: searchTerm}}},
+                    {$sort: {score: { $meta: "textScore" }}}
+                  ],0,true)
+                resolve(posts)
+            }else{
+                reject()
+            }
+        } catch (error) {
+            console.log("error")
+        }
+        
     })
 }
 
