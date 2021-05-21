@@ -5,6 +5,8 @@ const router=express.Router()
 //in require variables as part of the MVC (Model,View,Controller)
 const userController=require('./controllers/userController')
 const postController=require ('./controllerS/postController')
+const followController=require('./controllers/followController')
+
 //user related routes
 router.get('/',userController.home)
 router.post('/register',userController.register)
@@ -21,8 +23,14 @@ router.post('/post/:id/delete',userController.mustBeLogin,postController.delete)
 router.post('/search',postController.search)
 
 //profile related routes
-router.get('/profile/:username',userController.ifUserExists,userController.profilePostsScreen)
+router.get('/profile/:username',userController.ifUserExists,userController.sharedProfileData,userController.profilePostsScreen)
+router.get('/profile/:username/followers',userController.ifUserExists,userController.sharedProfileData,userController.profileFollowersScreen)
+router.get('/profile/:username/following',userController.ifUserExists,userController.sharedProfileData,userController.profileFollowingScreen)
 
+
+//follow related routes
+router.post('/addFollow/:username',userController.mustBeLogin,followController.addFollow)
+router.post('/removeFollow/:username',userController.mustBeLogin,followController.removeFollow)
 
 //router will return on where is been required. in this case app.js
 module.exports=router
