@@ -58,7 +58,6 @@ export default class search{
     }
     renderResultsHTML(posts){
       if(posts.length){
-        console.log("i have data!")
         this.resultsArea.innerHTML=DOMpurify.sanitize(`<div class="list-group shadow-sm">
         <div class="list-group-item active"><strong>Search Results</strong> (${posts.length > 1?`${posts.length} items found`:`1 item found`})</div>
         ${posts.map((post)=>{

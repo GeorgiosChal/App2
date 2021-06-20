@@ -1,3 +1,4 @@
 node_modules
 .env
-
+models/models_info.txt
+controllers/controller_infos.txt

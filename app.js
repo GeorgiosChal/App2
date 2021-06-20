@@ -45,6 +45,7 @@ app.use(function(req,res,next){
 //sets a router. value of router should be whatever returned
 //from router.js file with line:module.exports=router
 const router=require('./router')
+const { Socket } = require('dgram')
 
 //add user submited data to request body
 app.use(express.urlencoded({extended:false}))
@@ -62,5 +63,38 @@ app.set('view engine','ejs')
 //Requests
 app.use('/',router)
 
+//server
+const server=require('http').createServer(app)
 
-module.exports=app
+//Socket///////////////
+const io=require('socket.io')(server)
+/*
+same as 
+const {Server}=require("socket.io")
+const io=new Server(server)
+*/
+
+io.use(function(socket,next){
+    sessionOptions(socket.request,socket.request.res,next)
+})
+
+io.on('connection',(socket)=>{
+    if(socket.request.session.user){
+        let user=socket.request.session.user
+        socket.emit('welcome',{
+            username:user.username,
+            avatar: user.avatar})
+        socket.on('chatMessageFromBroswer',function(data){
+            socket.broadcast.emit('chatMessageFromServer',{
+                message: sanitizeHTML(data.message,{allowedAttributes:{},allowedTags:[]}),
+                username: user.username,
+                avatar:user.avatar
+            })
+        })
+    }
+    else{
+
+    }
+})
+
+module.exports=server
