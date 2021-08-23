@@ -8,6 +8,8 @@ const flash=require('connect-flash')
 const markdown=require('marked')
 //sanitizehtml
 const sanitizeHTML=require('sanitize-html')
+//
+const csrf = require('csurf')
 const app=express()
 
 //sesion init
@@ -59,9 +61,27 @@ app.set('views','views')
 //for views, we set the engine as ejs
 app.set('view engine','ejs')
 
+//csurf
+app.use(csrf())
+
+app.use(function(req,res,next){
+    res.locals.csrfToken = req.csrfToken()
+    next()
+})
 
 //Requests
 app.use('/',router)
+
+app.use(function(err,req,res,next){
+    if(err){
+        if(err.code == "EBADCSRFTOKEN"){
+            req.flash('errors',"Cross site request forgery detected")
+            req.session.save(()=>res.redirect('/'))
+        }else{
+            res.render("404")
+        }
+    }
+})
 
 //server
 const server=require('http').createServer(app)
