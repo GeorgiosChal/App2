@@ -3,6 +3,17 @@ const User=require("../models/User")
 const Post=require("../models/Post")
 const Follow=require("../models/Follow")
 
+const jwt=require('jsonwebtoken')
+
+exports.apiGetPostsByUsername=async function(req,res){
+    try {
+        let authorDoc=await User.findByUsername(req.params.username)
+        let posts=await Post.findByAuthorId(authorDoc._id)
+        res.json(posts)
+    } catch (e) {
+        res.json("Sorry, Invalid User Requested")
+    }
+}
 
 //object in req= {username: this.username.value}
 exports.doesUsernameExist=function(req,res){
@@ -34,6 +45,16 @@ exports.login=function(req,res){
         req.session.save(function(){
             res.redirect('/')
         })
+    })
+}
+
+exports.apiLogin=function(req,res){
+    let user=new User(req.body)
+    user.login().then(function(result){
+        res.json(jwt.sign({_id:user.data._id},process.env.JWTSECRET,{expiresIn:"7d"}))
+        
+    }).catch(function(e){
+       res.json("SOrry not sorry")
     })
 }
 
@@ -90,6 +111,15 @@ exports.mustBeLogin=function(req,res,next){
         req.session.save(function(){
             res.redirect('/')
         })
+    }
+}
+
+exports.apiMustBeLogin=function(req,res,next){
+    try {
+        req.apiUser=jwt.verify(req.body.token,process.env.JWTSECRET)
+        next()
+    } catch (e) {
+        res.json("Sorry you must provide a valid token")
     }
 }
 

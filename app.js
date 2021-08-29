@@ -10,7 +10,14 @@ const markdown=require('marked')
 const sanitizeHTML=require('sanitize-html')
 //
 const csrf = require('csurf')
+
 const app=express()
+
+//add user submited data to request body
+app.use(express.urlencoded({extended:false}))
+app.use(express.json())
+//api router
+app.use('/api', require('./router-api'))
 
 //sesion init
 const sessionOptions=session({
