@@ -4,7 +4,7 @@ const router=express.Router()
 //router should only do routing tasks, the functions is included 
 //in require variables as part of the MVC (Model,View,Controller)
 const userController=require('./controllers/userController')
-const postController=require ('./controllerS/postController')
+const postController=require ('./controllers/postController')
 const followController=require('./controllers/followController')
 
 //user related routes
